@@ -1,3 +1,7 @@
 {
-    "list": []
+    "list": [
+        {"id": 0, "command": "sub_test1"},
+        {"id": 1, "command": "sub_test2"},
+        {"id": 2, "command": "sub_test3"}
+    ]
 }
