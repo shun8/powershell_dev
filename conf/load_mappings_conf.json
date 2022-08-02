@@ -1,0 +1,27 @@
+{
+    "tmp_dir": "C:\\tmp",
+    "sql_dir": "C:\\tmp\\sql",
+    "mappings": [
+        {
+            "file_name": "TEST",
+            "s3_bucket": "TESTBUCKET",
+            "schema": "TESTSCHEMA",
+            "table_name": "TABLENAME",
+            "table_columns_order": "T_ORDER",
+            "file_columns_order": "F_ORDER",
+            "file_format": "TESTFORMAT",
+            "external_stage": "TESTSTAGE"
+        },
+        {
+            "file_name": "TEST2",
+            "s3_bucket": "TESTBUCKET2",
+            "schema": "TESTSCHEMA2",
+            "table_name": "TABLENAME2",
+            "table_columns_order": "T_ORDER2",
+            "file_columns_order": "F_ORDER2",
+            "file_format": "TESTFORMAT2",
+            "external_stage": "TESTSTAGE2"
+        }
+
+    ]
+}

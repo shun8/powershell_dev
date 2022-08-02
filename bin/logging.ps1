@@ -72,6 +72,16 @@ Class Logging {
         $this.WriteLog("INFO", "$Message")
     }
 
+    [void] Error(
+        [string]$MessageID,
+        [array]$ReplacementStrings
+    ) {
+        $Message = $this.GetMessageString($MessageID)
+        $Message = $this.ReplacePlaceHolders($Message, $ReplacementStrings)
+
+        $this.WriteLog("ERROR", "$Message")
+    }
+
     [string] GetMessageString(
         [string]$MessageID
     ) {
