@@ -142,12 +142,13 @@ ForEach-Object {
 # Execute: SnowSQL
 # TODO: SecretManager
 $SnowSQLInfo = (Get-Content -Path "<forUT>" | ConvertFrom-Json)
-$Env:SNOWSQL_PWD = $SnowSQLInfo.Password
+$Env:SNOWSQL_PWD = $SnowSQLInfo.password
 $TmpErrorFile = New-TemporaryFile
-snowsql -a <account>.ap-northeast-1.aws -d test -u <user> -s <schema>`
-        -f ..\sql\transaction_test.sql `
+snowsql -a $SnowSQLInfo.account -d "$DBName" -u $SnowSQLInfo.user -s $SQLInfo.schema `
+        -f "$TmpSQLFile" `
         -o variable_substitution=true `
-        -D table_name=h_0 -D id=00005 2>> $TmpErrorFile
+        -D delete_ymd="$DeleteYMD" -D accum_ymd="$AccumYMD" `
+        -D base_ymd="$BaseYMD" 2>> $TmpErrorFile
 
 if (($LASTEXITCODE -ne 0) -Or ((Get-Item $TmpErrorFile).Length -ne 0)) {
     $logger.error("test", @("1rep", "snowsqlerror"))
