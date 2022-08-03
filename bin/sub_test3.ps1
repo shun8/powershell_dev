@@ -141,7 +141,7 @@ ForEach-Object {
 
 # Execute: SnowSQL
 # TODO: SecretManager
-$SnowsqlJSON = (Get-Content -Path "<forUT>" | ConvertFrom-Json)
+$SnowSQLInfo = (Get-Content -Path "<forUT>" | ConvertFrom-Json)
 $Env:SNOWSQL_PWD = $SnowSQLInfo.Password
 $TmpErrorFile = New-TemporaryFile
 snowsql -a <account>.ap-northeast-1.aws -d test -u <user> -s <schema>`
