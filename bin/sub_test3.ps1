@@ -52,6 +52,8 @@ if (! $SQLInfo) {
     $logger.error("test", @("1rep", "2rep"))
     exit($ErrorCode)
 }
+$TmpDir = $Config.tmp_dir
+$Env:TMP = "$TmpDir"
 
 # URI Pattern
 $S3PathPattern = "/$S3FileName/.+/$AccumYMD/.+"
@@ -66,8 +68,6 @@ else {
     $BaseSQLFile = Join-Path $Config.sql_dir "$SQLFileName"
 }
 
-$TmpDir = $Config.tmp_dir
-$Env:TMP = "$TmpDir"
 $TmpSQLFile = New-TemporaryFile
 if (! $?) {
     $logger.error("test", @("1rep", "2rep"))
@@ -93,7 +93,7 @@ snowsql -a <account>.ap-northeast-1.aws -d test -u <user> -s <schema>`
         -o variable_substitution=true `
         -D table_name=h_0 -D id=00005 2>> $TmpErrorFile
 
-if (($? -ne 0) -Or ((Get-Item $TmpErrorFile).Length -ne 0)) {
+if (($LASTEXITCODE -ne 0) -Or ((Get-Item $TmpErrorFile).Length -ne 0)) {
     $logger.error("test", @("1rep", "snowsqlerror"))
     Remove-Item $TmpSQLFile
     Remove-Item $TmpErrorFile
