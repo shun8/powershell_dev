@@ -49,7 +49,7 @@ if (!(Test-Path $ConfigPath)) {
     exit $ErrorCode
 }
 
-# Config
+# Set Config
 $Config = Get-Content -Path "${ConfigPath}" | ConvertFrom-Json
 $TmpDir = $Config.tmp_dir
 $Env:TMP = "$TmpDir"
@@ -66,6 +66,7 @@ Workflow Test-Workflow {
         [string]$AccumYMD,
         [string]$BaseYMD,
         [string]$DeleteYMD,
+        [string]$DBName,
         [switch]$Rerun
     )
     
@@ -101,10 +102,14 @@ Workflow Test-Workflow {
             $NoDelete = False
         }
 
-        $Cmd = (Join-Path $Workflow:Dir $Workflow:Job.command) + ".ps1" `
+        $Cmd = (Join-Path $Workflow:Dir $Workflow:Job.script_id) + ".ps1" `
+                + " -S3FileName " + $Job.file_name `
+                + " -S3AccumYMD $Workflow:AccumYMD" `
                 + " -AccumYMD $Workflow:AccumYMD" `
                 + " -BaseYMD $Workflow:BaseYMD" `
                 + " -DeleteYMD $Workflow:DeleteYMD" `
+                + " -DBName $Workflow:DBName" `
+                + " -Warehouse " + $Job.warehouse `
                 + " -NoDelete $NoDelete"
 
         $result = InlineScript {

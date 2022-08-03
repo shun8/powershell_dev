@@ -20,7 +20,17 @@ $ScriptID = "TEST"
 # Path
 $ParentDir = Split-Path -Parent "$PSScriptRoot"
 $ConfigPath = Join-Path "$ParentDir" "\conf\load_mappings_conf.json"
-$Config = (Get-Content -Path "$ConfigPath" | ConvertFrom-Json)
+
+# File Check
+if (!(Test-Path $ConfigPath)) {
+    Write-Output "No Config File ${ConfigPath}"
+    exit $ErrorCode
+}
+
+# Set Config
+$Config = Get-Content -Path "${ConfigPath}" | ConvertFrom-Json
+$TmpDir = $Config.tmp_dir
+$Env:TMP = "$TmpDir"
 
 # import: Logger
 . (Join-Path "$PSScriptRoot" "logging.ps1")
@@ -31,13 +41,60 @@ if (! $S3FileName) {
     $logger.error("test", @("1rep", "s3filename"))
     exit($ErrorCode)
 }
+if (! $S3AccumYMD) {
+    $logger.error("test", @("1rep", "s3accumymd"))
+    exit($ErrorCode)
+}
+if (! $AccumYMD) {
+    $logger.error("test", @("1rep", "accumymd"))
+    exit($ErrorCode)
+}
+if (! $BaseYMD) {
+    $logger.error("test", @("1rep", "baseymd"))
+    exit($ErrorCode)
+}
+if ((! $NoDelete) -And (! $DeleteYMD)) {
+    $logger.error("test", @("1rep", "deleteymd"))
+    exit($ErrorCode)
+}
+if (! $DBName) {
+    $logger.error("test", @("1rep", "dbname"))
+    exit($ErrorCode)
+}
+if (! $Warehouse) {
+    $logger.error("test", @("1rep", "warehouse"))
+    exit($ErrorCode)
+}
 
 # Check: Datetime
+try {
+    [DateTime]::ParseExact("$S3AccumYMD","yyyyMMdd", $null)
+}
+catch {
+    $logger.error("test", @("1rep", "s3accumymd"))
+    exit($ErrorCode)
+}
 try {
     [DateTime]::ParseExact("$AccumYMD","yyyyMMdd", $null)
 }
 catch {
     $logger.error("test", @("1rep", "accumymd"))
+    exit($ErrorCode)
+}
+try {
+    [DateTime]::ParseExact("$BaseYMD","yyyyMMdd", $null)
+}
+catch {
+    $logger.error("test", @("1rep", "baseymd"))
+    exit($ErrorCode)
+}
+try {
+    if ("$DeleteYMD") {
+        [DateTime]::ParseExact("$DeleteYMD","yyyyMMdd", $null)
+    }
+}
+catch {
+    $logger.error("test", @("1rep", "deleteymd"))
     exit($ErrorCode)
 }
 
@@ -52,13 +109,11 @@ if (! $SQLInfo) {
     $logger.error("test", @("1rep", "2rep"))
     exit($ErrorCode)
 }
-$TmpDir = $Config.tmp_dir
-$Env:TMP = "$TmpDir"
 
 # URI Pattern
 $S3PathPattern = "/$S3FileName/.+/$AccumYMD/.+"
 
-# SQL FIle
+# Generate: Tmp SQL FIle
 if ($NoDelete) {
     $SQLFileName = "$ScriptID" + "_load_no_delete.sql"
     $BaseSQLFile = Join-Path $Config.sql_dir "$SQLFileName"
@@ -84,8 +139,9 @@ ForEach-Object {
         -replace '<s3_filename_pattern>',"$S3PathPattern"
 } | Set-Content "$TmpSQLFile" -Encoding "$ENCODING"
 
-# SnowSQL
-# SecretManager
+# Execute: SnowSQL
+# TODO: SecretManager
+$SnowsqlJSON = (Get-Content -Path "<forUT>" | ConvertFrom-Json)
 $Env:SNOWSQL_PWD = $SnowSQLInfo.Password
 $TmpErrorFile = New-TemporaryFile
 snowsql -a <account>.ap-northeast-1.aws -d test -u <user> -s <schema>`
