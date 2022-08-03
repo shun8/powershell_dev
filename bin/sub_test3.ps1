@@ -12,7 +12,7 @@ Param (
 
 # ExitCode
 $SuccessfulCode = 0
-$ErrorCode = 128
+$ErrorCode = 127
 
 # ID
 $ScriptID = "TEST"

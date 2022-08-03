@@ -8,11 +8,34 @@ Param(
 
 # ExitCode
 $SuccessfulCode = 0
-$ErrorCode = 128
+$ErrorCode = 127
+
+# ID
+$ScriptID = "TEST"
 
 # Check: Required
 if (! $Target) {
     $logger.error("test", @("1rep", "target"))
+    exit($ErrorCode)
+}
+# Check: Datetime
+try {
+    if ("$AccumYMD") {
+        [DateTime]::ParseExact("$AccumYMD","yyyyMMdd", $null)
+    }
+
+}
+catch {
+    $logger.error("test", @("1rep", "accumymd"))
+    exit($ErrorCode)
+}
+try {
+    if ("$DeleteYMD") {
+        [DateTime]::ParseExact("$DeleteYMD","yyyyMMdd", $null)
+    }
+}
+catch {
+    $logger.error("test", @("1rep", "deleteymd"))
     exit($ErrorCode)
 }
 
@@ -89,7 +112,7 @@ Workflow Test-Workflow {
         }
         if (! $result[-1])
         {
-            #log
+            #Log
             $Workflow:Errors += 1
         }
         else {
